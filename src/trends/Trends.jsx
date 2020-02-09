@@ -5,30 +5,24 @@ import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
 const selectGrouped = createSelector(
-  state => state.search.resultSets,
-  resultSets => {
-    const current = _.last(resultSets) || null;
-
-    if (!current) return null;
-
-    return _(current.eSummaryResult)
-      .countBy(it => it.date)
-      .mapValues((qty, year) => ({ year, qty }))
-      .toArray()
-      .value();
+  state => state.search.resultSet,
+  resultSet => {
+    return resultSet
+      ? _(resultSet.eSummaryResult)
+          .countBy(it => it.date)
+          .mapValues((qty, year) => ({ year, qty }))
+          .toArray()
+          .value()
+      : null;
   }
 );
 
 const Trends = () => {
   const rawData = useSelector(selectGrouped);
-  // const rawData = [
-  //   { year: "2016", qty: 1 },
-  //   { year: "2017", qty: 2 },
-  //   { year: "2018", qty: 3 }
-  // ];
 
   const d3Ref = useRef(null);
 
+  // Adapted from https://www.tutorialsteacher.com/d3js/create-bar-chart-using-d3js
   useEffect(() => {
     if (rawData && d3Ref.current) {
       const svg = d3.select(d3Ref.current);
@@ -75,7 +69,7 @@ const Trends = () => {
 
   return (
     <div className="Trends">
-      <svg className="Trends-chart" width={500} height={500} ref={d3Ref} />
+      <svg className="Trends-chart" width={700} height={500} ref={d3Ref} />
     </div>
   );
 };

@@ -1,9 +1,10 @@
 import axios from "axios";
 import { DateTime } from "luxon";
 import _ from "lodash";
+import Bottleneck from "bottleneck";
 
 const pageSize: number = 500;
-const maxRetStart = 1000;
+const limiter = new Bottleneck({ minTime: 200, maxConcurrent: 10 });
 
 const ncbiClient = axios.create({
   baseURL: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
@@ -57,32 +58,40 @@ const eSummary = async ({
   queryKey,
   count
 }: NcbiLookup): Promise<NcbiSummary[]> => {
-  let summaries: NcbiSummary[] = [];
+  // Calculate each retstart (offset) and schedule a HTTP request for each part
+  const retstarts = _.range(0, count, pageSize);
+  const tasks = retstarts.map(retstart =>
+    limiter.schedule(() =>
+      ncbiClient.request({
+        url: "/esummary.fcgi",
+        params: { WebEnv: webEnv, query_key: queryKey, retstart }
+      })
+    )
+  );
 
-  for (
-    let retstart = 0;
-    retstart <= maxRetStart && retstart + pageSize < count;
-    retstart += pageSize
-  ) {
-    const response = await ncbiClient.request({
-      url: "/esummary.fcgi",
-      params: { WebEnv: webEnv, query_key: queryKey, retstart }
-    });
+  // Coalesce the requests
+  const results = await Promise.all(tasks);
 
-    const preparedResults: NcbiSummary[] = _(response.data.result)
-      .omit("uids") // This is a list of the uuids alongside it in the data
-      .map((it: any) => ({
-        uid: it.uid as string,
-        date: DateTime.fromString(it.sortpubdate, "yyyy/mm/dd HH:mm").toFormat(
-          "yyyy"
-        )
-      }))
-      .value();
+  // Finally, pull each result batch out and prepare it for display
+  const preparedResults: NcbiSummary[] = _(results)
+    .compact()
+    .flatMap((result: any) =>
+      _(result.data.result)
+        .omit("uids")
+        .toArray()
+        .map(it => ({
+          uid: it.uid as string,
+          date: it.sortpubdate
+            ? DateTime.fromString(it.sortpubdate, "yyyy/mm/dd HH:mm").toFormat(
+                "yyyy"
+              )
+            : "Unknown"
+        }))
+        .value()
+    )
+    .value();
 
-    summaries.push(...preparedResults);
-  }
-
-  return summaries;
+  return preparedResults;
 };
 
 export { eSearch, eSummary };

@@ -5,7 +5,7 @@ import { NcbiSummary } from "./ncbiApi";
 export interface SearchState {
   running: boolean;
   error: string | null;
-  resultSets: ResultSet[];
+  resultSet: ResultSet | null;
 }
 
 export interface ResultSet {
@@ -18,7 +18,7 @@ export interface ResultSet {
 const initialState: SearchState = {
   running: false,
   error: null,
-  resultSets: []
+  resultSet: null
 };
 
 const searchSlice = createSlice({
@@ -31,7 +31,7 @@ const searchSlice = createSlice({
     },
     resolvedSearch(state, action) {
       console.log(action.payload);
-      state.resultSets.push(action.payload);
+      state.resultSet = action.payload;
       state.running = false;
     },
     failedSearch(state, action) {
