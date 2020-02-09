@@ -1,12 +1,13 @@
 import React, { FC, useState } from "react";
 import { doSearch } from "./searchSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const Search: FC = () => {
-  const [term, setTerm] = useState(""),
-    [dateStart, setDateStart] = useState(""),
-    [dateEnd, setDateEnd] = useState("");
+  const [term, setTerm] = useState("");
+  const [dateStart, setDateStart] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
 
+  const running = useSelector((state: any) => state.search.running);
   const dispatch = useDispatch();
 
   return (
@@ -37,6 +38,7 @@ const Search: FC = () => {
         />
         <input type="submit" value="Go" />
       </form>
+      {running && <span className="Search-running">Search in progress...</span>}
     </div>
   );
 };

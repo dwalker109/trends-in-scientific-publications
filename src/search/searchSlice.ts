@@ -1,19 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { eSearch, eSummary } from "./ncbiApi";
+import { NcbiSummary } from "./ncbiApi";
 
-interface SearchState {
+export interface SearchState {
   running: boolean;
+  error: string | null;
   resultSets: ResultSet[];
 }
 
-interface ResultSet {
+export interface ResultSet {
   term: string;
   startDate: string;
   endDate: string;
+  eSummaryResult: NcbiSummary[];
 }
 
 const initialState: SearchState = {
   running: false,
+  error: null,
   resultSets: []
 };
 
@@ -23,12 +27,16 @@ const searchSlice = createSlice({
   reducers: {
     startedSearch(state, action) {
       console.log(action.payload);
+      state.running = true;
     },
     resolvedSearch(state, action) {
       console.log(action.payload);
+      state.resultSets.push(action.payload);
+      state.running = false;
     },
     failedSearch(state, action) {
       console.log(action.payload);
+      state.error = action.payload;
     },
     deleteSearch(state, action) {}
   }
@@ -49,7 +57,7 @@ const doSearch = (term: string, dateStart: string, dateEnd: string) => async (
   try {
     const eSearchResult: any = await eSearch(term, dateStart, dateEnd);
     const eSummaryResult = await eSummary(eSearchResult);
-    dispatch(resolvedSearch(eSummaryResult));
+    dispatch(resolvedSearch({ term, dateStart, dateEnd, eSummaryResult }));
   } catch (e) {
     dispatch(failedSearch(e));
   }

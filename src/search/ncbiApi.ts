@@ -2,8 +2,8 @@ import axios from "axios";
 import { DateTime } from "luxon";
 import _ from "lodash";
 
-const pageSize: number = 10;
-const maxRetStart = 20;
+const pageSize: number = 500;
+const maxRetStart = 1000;
 
 const ncbiClient = axios.create({
   baseURL: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
@@ -22,7 +22,7 @@ interface NcbiLookup {
   count: number;
 }
 
-interface NcbiSummary {
+export interface NcbiSummary {
   uid: string;
   date: string;
 }
@@ -70,18 +70,16 @@ const eSummary = async ({
     });
 
     const preparedResults: NcbiSummary[] = _(response.data.result)
-      .omit("uids")
+      .omit("uids") // This is a list of the uuids alongside it in the data
       .map((it: any) => ({
         uid: it.uid as string,
-        date: DateTime.fromString(
-          it.sortpubdate,
-          "yyyy/mm/dd HH:mm"
-        ).toISODate()
+        date: DateTime.fromString(it.sortpubdate, "yyyy/mm/dd HH:mm").toFormat(
+          "yyyy"
+        )
       }))
       .value();
 
     summaries.push(...preparedResults);
-    console.log(summaries);
   }
 
   return summaries;
