@@ -17,7 +17,7 @@ const ncbiClient = axios.create({
   baseURL: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
   method: "post",
   params: {
-    ...(apiKey ? { api_key: "98b658d9738ecf8579fbaa1e00cb7efff609" } : {}),
+    ...(apiKey ? { api_key: apiKey } : {}),
     db: "pubmed",
     retmode: "json",
     retmax: pageSize
