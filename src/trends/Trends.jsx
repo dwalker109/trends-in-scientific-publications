@@ -65,6 +65,14 @@ const Trends = () => {
         .attr("width", xScale.bandwidth())
         .attr("height", d => height - yScale(d.qty));
     }
+
+    // Ensure SVG is reinitialised when rawData changes
+    const cleanupRef = d3Ref.current;
+    return () =>
+      d3
+        .select(cleanupRef)
+        .selectAll("*")
+        .remove();
   }, [rawData]);
 
   return (

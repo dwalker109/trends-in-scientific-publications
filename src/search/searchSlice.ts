@@ -56,6 +56,13 @@ const doSearch = (term: string, dateStart: string, dateEnd: string) => async (
   dispatch: any
 ) => {
   dispatch(startedSearch("Started search"));
+
+  if (Number(dateStart) > Number(dateEnd)) {
+    return dispatch(
+      failedSearch("'From' date must be less than or equal to 'To' date")
+    );
+  }
+
   try {
     const eSearchResult: any = await eSearch(term, dateStart, dateEnd);
     const eSummaryResult = await eSummary(eSearchResult);
