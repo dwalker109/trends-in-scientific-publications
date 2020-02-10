@@ -2,15 +2,22 @@ import axios from "axios";
 import { DateTime } from "luxon";
 import _ from "lodash";
 import Bottleneck from "bottleneck";
+import config from "../config";
 
+// Some setup - much faster if an NCBI api key is set in config
+const { apiKey } = config;
 const pageSize: number = 500;
-const limiter = new Bottleneck({ minTime: 200, maxConcurrent: 10 });
+const limiter = new Bottleneck({
+  minTime: apiKey ? 200 : 500,
+  maxConcurrent: apiKey ? 10 : 3
+});
 
+// Create client for reuse, with API key if available
 const ncbiClient = axios.create({
   baseURL: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
   method: "post",
   params: {
-    api_key: "98b658d9738ecf8579fbaa1e00cb7efff609",
+    ...(apiKey ? { api_key: "98b658d9738ecf8579fbaa1e00cb7efff609" } : {}),
     db: "pubmed",
     retmode: "json",
     retmax: pageSize
@@ -28,6 +35,9 @@ export interface NcbiSummary {
   date: string;
 }
 
+/**
+ * Create a search and stores results - returns a handle to retrieve later
+ */
 const eSearch = async (
   term: string,
   dateStart: string,
@@ -53,6 +63,9 @@ const eSearch = async (
   };
 };
 
+/**
+ * Retrieve a set of results (parallelised) from a search handle
+ */
 const eSummary = async ({
   webEnv,
   queryKey,

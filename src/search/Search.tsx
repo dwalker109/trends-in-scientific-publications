@@ -22,21 +22,29 @@ const Search: FC = () => {
         <input
           name="term"
           value={term}
+          disabled={running}
+          required={true}
           onChange={e => setTerm(e.target.value)}
         />
         <label htmlFor="date-start">Start</label>
         <input
           name="date-start"
           value={dateStart}
+          disabled={running}
+          required={true}
+          pattern="^\d{4}$"
           onChange={e => setDateStart(e.target.value)}
         />
         <label htmlFor="date-end">End</label>
         <input
           name="date-end"
           value={dateEnd}
+          disabled={running}
+          required={true}
+          pattern="^\d{4}$"
           onChange={e => setDateEnd(e.target.value)}
         />
-        <input type="submit" value="Go" />
+        <input type="submit" value="Go" disabled={running} />
       </form>
       {running && <span className="Search-running">Search in progress...</span>}
     </div>
