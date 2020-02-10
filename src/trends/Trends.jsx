@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import _ from "lodash";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+import "./Trends.css";
 
 const selectGrouped = createSelector(
   state => state.search.resultSet,
@@ -19,7 +20,6 @@ const selectGrouped = createSelector(
 
 const Trends = () => {
   const rawData = useSelector(selectGrouped);
-
   const d3Ref = useRef(null);
 
   // Adapted from https://www.tutorialsteacher.com/d3js/create-bar-chart-using-d3js
@@ -38,7 +38,7 @@ const Trends = () => {
 
       var g = svg
         .append("g")
-        .attr("transform", "translate(" + 100 + "," + 100 + ")");
+        .attr("transform", "translate(" + 75 + "," + 100 + ")");
 
       xScale.domain(rawData.map(d => d.year));
 

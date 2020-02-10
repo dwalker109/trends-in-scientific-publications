@@ -26,40 +26,42 @@ const searchSlice = createSlice({
   initialState,
   reducers: {
     startedSearch(state, action) {
-      console.log(action.payload);
       state.running = true;
+      state.error = null;
+      state.resultSet = null;
     },
     resolvedSearch(state, action) {
-      console.log(action.payload);
       state.resultSet = action.payload;
       state.running = false;
     },
     failedSearch(state, action) {
-      console.log(action.payload);
+      state.running = false;
       state.error = action.payload;
-    },
-    deleteSearch(state, action) {}
+    }
   }
 });
 
 export const {
   startedSearch,
   resolvedSearch,
-  failedSearch,
-  deleteSearch
+  failedSearch
 } = searchSlice.actions;
+
 export default searchSlice.reducer;
 
+/**
+ * Thunk used to init the AJAX requests
+ */
 const doSearch = (term: string, dateStart: string, dateEnd: string) => async (
   dispatch: any
 ) => {
-  dispatch(startedSearch("started search"));
+  dispatch(startedSearch("Started search"));
   try {
     const eSearchResult: any = await eSearch(term, dateStart, dateEnd);
     const eSummaryResult = await eSummary(eSearchResult);
     dispatch(resolvedSearch({ term, dateStart, dateEnd, eSummaryResult }));
   } catch (e) {
-    dispatch(failedSearch(e));
+    dispatch(failedSearch(e.toString()));
   }
 };
 
