@@ -24,7 +24,7 @@ const ncbiClient = axios.create({
   }
 });
 
-interface NcbiLookup {
+export interface NcbiLookup {
   webEnv: string;
   queryKey: string;
   count: number;

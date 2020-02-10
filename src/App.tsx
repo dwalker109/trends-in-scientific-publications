@@ -1,7 +1,12 @@
+import { configureStore } from "@reduxjs/toolkit";
 import React from "react";
 import "./App.css";
 import Search from "./search/Search";
+import rootReducer from "./setupRedux";
 import Trends from "./trends/Trends";
+import { Provider } from "react-redux";
+
+const store = configureStore({ reducer: rootReducer });
 
 const App = () => {
   return (
@@ -18,4 +23,10 @@ const App = () => {
   );
 };
 
-export default App;
+const ReduxApp = () => (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
+
+export default ReduxApp;

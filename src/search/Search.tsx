@@ -27,7 +27,7 @@ const Search: FC = () => {
         <div>
           <label htmlFor="term">Term</label>
           <input
-            name="term"
+            id="term"
             value={term}
             disabled={running}
             required={true}
@@ -37,7 +37,7 @@ const Search: FC = () => {
         <div>
           <label htmlFor="date-start">From</label>
           <input
-            name="date-start"
+            id="date-start"
             value={dateStart}
             disabled={running}
             required={true}
@@ -50,7 +50,7 @@ const Search: FC = () => {
         <div>
           <label htmlFor="date-end">To</label>
           <input
-            name="date-end"
+            id="date-end"
             value={dateEnd}
             disabled={running}
             required={true}
